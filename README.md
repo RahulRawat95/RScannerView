@@ -36,6 +36,8 @@ Simple Usage
 
 2.) A very basic activity would look like this:
 
+In Java
+
 ```java
 public class MainActivity extends AppCompatActivity implements ResultHandler {
 
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
 
 ```
 
+In Kotlin
+
 ```kotlin
 class MainActivity : AppCompatActivity(), ResultHandler {
     override fun handleResults(barcodes: List<FirebaseVisionBarcode>) {
@@ -104,6 +108,17 @@ class MainActivity : AppCompatActivity(), ResultHandler {
         scanner_view.stop()
     }
 }
+
+```
+
+activity_main.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<com.rr.scannerview.RScannerView
+    android:id="@+id/scanner_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
 
 ```
 
