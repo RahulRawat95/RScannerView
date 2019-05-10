@@ -28,14 +28,6 @@ implementation 'com.github.RahulRawat95:RScannerView:beta-0.0.1'
 Simple Usage
 ------------
 
-1.) Add camera permission to your AndroidManifest.xml file:
-
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-```
-
-2.) A very basic activity would look like this:
-
 In Java
 
 ```java
