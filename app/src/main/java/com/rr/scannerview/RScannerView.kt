@@ -36,22 +36,9 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
         inflater.inflate(R.layout.view_r_scanner, this)
     }
 
-    /**
-     * Member that decides for how long camera will pause once a correct code is scanned and handled
-     * in milliseconds
-     */
-    var processingDelay = 0L
-
     private var camera: Fotoapparat? = null
     private var resultHandler: ResultHandler? = null
-    private val firebaseHandler by lazy { Handler() }
     private var isProcessing = false
-    private val runnable by lazy {
-        Runnable {
-            isProcessing = false
-            camera?.start()
-        }
-    }
 
     private val firebaseBarcodeOptions by lazy {
         if (scannableBarcodeFormats == null || scannableBarcodeFormats?.size == 0) {
@@ -139,11 +126,9 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
 
                                     override fun onPostExecute(result: Unit?) {
                                         if (barcode != null) {
-                                            camera?.stop()
                                             resultHandler?.handleResult(barcode!!)
-                                            resumeCamera()
-                                        } else
-                                            isProcessing = false
+                                        }
+                                        isProcessing = false
                                     }
                                 }).execute()
                             } else {
@@ -178,13 +163,25 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
      * Method that stops the camera and scanning process
      */
     fun stop() {
-        firebaseHandler.removeCallbacks(runnable)
         isProcessing = false
         camera?.stop()
         camera = null
     }
 
-    private fun resumeCamera() = firebaseHandler.postDelayed(runnable, processingDelay)
+    /**
+     * Method that pauses the camera and processing of frames together
+     */
+    fun pauseCamera() {
+        camera?.stop()
+    }
+
+    /**
+     * Method that resumes the camera and processing of frames together
+     */
+    fun resumeCamera() {
+        isProcessing = false
+        camera?.start()
+    }
 
     private fun initCamera() =
         Fotoapparat(

@@ -22,7 +22,7 @@ And Add the following dependency to your build.gradle file.
 
 ```
 implementation 'com.google.firebase:firebase-ml-vision:19.0.3'
-implementation 'com.github.RahulRawat95:RScannerView:beta-0.0.1'
+implementation 'com.github.RahulRawat95:RScannerView:1.0.0-beta'
 ```
 
 Simple Usage
@@ -124,9 +124,6 @@ Interesting methods on the RScannerView include:
 // Set callback to deliver the scanned barcode:
 void setResultHandler(com.rr.scannerview.ResultHandler);
 
-// Set delay to stop camera view after successfully scanning a Barcode:
-void setProcessingDelay(long);
-
 // Specify interested barcode formats:
 //only allowed values are those specified in FirebaseVisionBarcode class
 //i.e. FirebaseVisionBarcode.FORMAT_AZTEC, FirebaseVisionBarcode.FORMAT_DATA_MATRIX etc.
@@ -140,6 +137,12 @@ void start();
 // stop scanning:
 //call in onPause
 void stop();
+
+// pauses the camera and the processing of barcodes
+void pauseCamera();
+
+// resumes the paused camera and the processing of barcodes
+void resumeCamera();
 ```
 
 Supported Formats:
