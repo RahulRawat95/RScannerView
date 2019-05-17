@@ -176,6 +176,11 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
      * Method that starts scanning with the Front Camera
      */
     fun startFrontCamera() {
+        if (!hasFrontCamera(context)) {
+            showToast(context, "No Front Facing Camera detected. Falling back to Back Camera")
+            startBackCamera()
+            return
+        }
         if (cameraPermissionGranted()) {
             camera?.stop()
             initFrontCamera()
@@ -306,14 +311,19 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
                     &&
                     contains((width / 2.01).toFloat(), (height / 2.01).toFloat())
 
-        private fun showToast(context: Context) {
+        private fun showToast(context: Context, message: String = "Please give Camera Permission First") {
             if (toast != null) {
                 toast?.cancel()
             }
-            toast = Toast.makeText(context, "Please give Camera Permission First", Toast.LENGTH_LONG).apply {
+            toast = Toast.makeText(context, message, Toast.LENGTH_LONG).apply {
                 setGravity(Gravity.CENTER, 0, 0)
             }
             toast?.show()
+        }
+
+        private fun hasFrontCamera(context: Context) = when {
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) -> true
+            else -> false
         }
     }
 }
