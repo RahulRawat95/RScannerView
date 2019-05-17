@@ -40,6 +40,8 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
     private var resultHandler: ResultHandler? = null
     private var isProcessing = false
 
+    private var isFrontCameraScanning = false
+
     private val firebaseBarcodeOptions by lazy {
         if (scannableBarcodeFormats == null || scannableBarcodeFormats?.size == 0) {
             FirebaseVisionBarcodeDetectorOptions.Builder()
@@ -148,14 +150,48 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
         .build()
 
     /**
-     * Method that starts the camera and scanning process
+     * Method that starts the camera and scanning process depending on what camera was being used before
      */
     fun start() {
+        if (isFrontCameraScanning) {
+            startFrontCamera()
+        } else {
+            startBackCamera()
+        }
+    }
+
+    /**
+     * Method that starts scanning with the Back Camera
+     */
+    fun startBackCamera() {
         if (cameraPermissionGranted()) {
-            FirebaseApp.initializeApp(context)
-            initCamera()
+            camera?.stop()
+            initBackCamera()
         } else {
             showToast(context)
+        }
+    }
+
+    /**
+     * Method that starts scanning with the Front Camera
+     */
+    fun startFrontCamera() {
+        if (cameraPermissionGranted()) {
+            camera?.stop()
+            initFrontCamera()
+        } else {
+            showToast(context)
+        }
+    }
+
+    /**
+     * Method that switches the camera being used to scan i.e. Front to Back and Back to Front
+     */
+    fun switchCamera() {
+        if (isFrontCameraScanning) {
+            startBackCamera()
+        } else {
+            startFrontCamera()
         }
     }
 
@@ -183,7 +219,7 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
         camera?.start()
     }
 
-    private fun initCamera() =
+    private fun initBackCamera() =
         Fotoapparat(
             context = context,
             view = camera_view,
@@ -192,6 +228,20 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
             cameraConfiguration = cameraConfiguration
         ).run {
             camera = this
+            isFrontCameraScanning = false
+            camera?.start()
+        }
+
+    private fun initFrontCamera() =
+        Fotoapparat(
+            context = context,
+            view = camera_view,
+            scaleType = ScaleType.CenterCrop,
+            lensPosition = front(),
+            cameraConfiguration = cameraConfiguration
+        ).run {
+            camera = this
+            isFrontCameraScanning = true
             camera?.start()
         }
 

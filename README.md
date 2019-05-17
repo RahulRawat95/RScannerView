@@ -130,9 +130,19 @@ void setResultHandler(com.rr.scannerview.ResultHandler);
 //if not called or called with null or zero elements the scanner will scan for all Barcode Formats
 void setBarcodeFormats(int[]);
 
-// start scanning:
+// start scanning with the camera that was being used before
 //call in onResume
 void start();
+
+//start Back camera for scanning
+void startBackCamera();
+
+//start Front camera for scanning
+void startFrontCamera();
+
+//switch camera for scanning i.e. if front camera is being
+//used it will start using back camera and vice versa
+void switchCamera();
 
 // stop scanning:
 //call in onPause
