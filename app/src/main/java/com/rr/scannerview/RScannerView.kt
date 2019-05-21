@@ -5,14 +5,12 @@ import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.AsyncTask
-import android.os.Handler
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.google.firebase.FirebaseApp
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
@@ -30,7 +28,8 @@ import kotlinx.android.synthetic.main.view_r_scanner.view.*
 /**
  * Created by Rahul Rawat on 5/9/19.
  */
-class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
+class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs),
+    RScannerOverlayView.RectangleChanged {
     init {
         val inflater = LayoutInflater.from(context)
         inflater.inflate(R.layout.view_r_scanner, this)
@@ -39,6 +38,8 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
     private var camera: Fotoapparat? = null
     private var resultHandler: ResultHandler? = null
     private var isProcessing = false
+
+    private var scanningRectangle: RectF? = null
 
     private var isFrontCameraScanning = false
 
@@ -114,8 +115,15 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
                                     var barcode: FirebaseVisionBarcode? = null
                                     override fun doInBackground(vararg params: Void?) {
                                         val bitmap = image.bitmapForDebugging
+                                        var bitmapRectangle = scanningRectangle?.convertToImageDimens(
+                                            bitmap.width.toFloat(),
+                                            bitmap.height.toFloat(),
+                                            this@RScannerView.width.toFloat(),
+                                            this@RScannerView.height.toFloat()
+                                        )
                                         for (barcode in barcodes) {
-                                            if (barcode.boundingBox?.convertToRectF()?.hasPoints(
+                                            if (bitmapRectangle?.hasRectangleAndCenter(
+                                                    barcode.boundingBox?.convertToRectF(),
                                                     bitmap.width.toFloat(),
                                                     bitmap.height.toFloat()
                                                 ) == true
@@ -235,6 +243,7 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
             camera = this
             isFrontCameraScanning = false
             camera?.start()
+            initScanRectangleCallback()
         }
 
     private fun initFrontCamera() =
@@ -248,7 +257,12 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
             camera = this
             isFrontCameraScanning = true
             camera?.start()
+            initScanRectangleCallback()
         }
+
+    private fun initScanRectangleCallback() {
+        view_finder.mRectangleChanged = this
+    }
 
     private fun cameraPermissionGranted() = isPermissionGranted(context, android.Manifest.permission.CAMERA)
 
@@ -273,6 +287,10 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
         scannableBarcodeFormats = formats
     }
 
+    override fun onChange(rectangle: RectF?) {
+        scanningRectangle = view_finder.scanningRectangle
+    }
+
     companion object {
         private var toast: Toast? = null
 
@@ -292,24 +310,22 @@ class RScannerView(context: Context, attrs: AttributeSet) : FrameLayout(context,
             return rectF
         }
 
-        private fun RectF.hasPoints(width: Float, height: Float) =
-            contains((width / 1.99).toFloat(), (height / 1.99).toFloat())
-                    &&
-                    contains((width / 2), (height / 1.99).toFloat())
-                    &&
-                    contains((width / 2.01).toFloat(), (height / 1.99).toFloat())
-                    &&
-                    contains((width / 1.99).toFloat(), (height / 2))
-                    &&
-                    contains((width / 2), (height / 2))
-                    &&
-                    contains((width / 2.01).toFloat(), (height / 2))
-                    &&
-                    contains((width / 1.99).toFloat(), (height / 2.01).toFloat())
-                    &&
-                    contains((width / 2), (height / 2.01).toFloat())
-                    &&
-                    contains((width / 2.01).toFloat(), (height / 2.01).toFloat())
+        private fun RectF.convertToImageDimens(
+            imageWidth: Float,
+            imageHeight: Float,
+            viewWidth: Float,
+            viewHeight: Float
+        ): RectF {
+            val rectF = RectF()
+            rectF.bottom = imageHeight * bottom / viewHeight
+            rectF.top = imageHeight * top / viewHeight
+            rectF.left = imageWidth * left / viewWidth
+            rectF.right = imageWidth * right / viewWidth
+            return rectF
+        }
+
+        private fun RectF.hasRectangleAndCenter(rectF: RectF?, width: Float, height: Float) =
+            rectF?.contains((width / 2), (height / 2)) == true && contains(rectF)
 
         private fun showToast(context: Context, message: String = "Please give Camera Permission First") {
             if (toast != null) {

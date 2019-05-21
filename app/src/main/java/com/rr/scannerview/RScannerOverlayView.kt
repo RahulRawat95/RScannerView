@@ -21,6 +21,18 @@ import android.view.animation.LinearInterpolator
 
 class RScannerOverlayView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
+    interface RectangleChanged {
+        fun onChange(rectangle: RectF?)
+    }
+
+    var mRectangleChanged: RectangleChanged? = null
+        set(value) {
+            field = value
+            value?.onChange(scanningRectangle)
+        }
+
+    var scanningRectangle: RectF? = null
+
     // Styleable attributes:
     private var mFrameWidthPercentage: Float = 0.toFloat()
     private var mFrameHeightPercentage: Float = 0.toFloat()
@@ -181,6 +193,14 @@ class RScannerOverlayView(context: Context, attrs: AttributeSet) : View(context,
 
         mPaddingWidth = (w - mFrameWidth) / 2
         mPaddingHeight = (h - mFrameHeight) / 2
+
+        scanningRectangle = RectF(
+            mPaddingWidth.toFloat(),
+            mPaddingHeight.toFloat(),
+            (mPaddingWidth + mFrameWidth).toFloat(),
+            (mPaddingHeight + mFrameHeight).toFloat()
+        )
+        mRectangleChanged?.onChange(scanningRectangle!!)
     }
 
     override fun onDraw(canvas: Canvas) {
