@@ -1,7 +1,7 @@
 Introduction
 ============
 
-Android library projects that provides easy to use and extensible Barcode Scanner view based on Firebase Vision Barcode and Fotoapparat alongwith overlay that looks like WhatsApp scanner.
+Android library projects that provides easy to use and extensible Barcode Scanner view based on Firebase Vision Barcode and Fotoapparat.
 
 Screenshots
 ===========
@@ -21,8 +21,8 @@ repositories {
 And Add the following dependency to your build.gradle file.
 
 ```
-implementation 'com.google.firebase:firebase-ml-vision:19.0.3'
-implementation 'com.github.RahulRawat95:RScannerView:1.1.0-beta'
+implementation 'com.google.firebase:firebase-ml-vision:20.0.0'
+implementation 'com.github.RahulRawat95:RScannerView:1.2.0-beta'
 ```
 
 Simple Usage
