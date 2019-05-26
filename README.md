@@ -22,7 +22,7 @@ And Add the following dependency to your build.gradle file.
 
 ```
 implementation 'com.google.firebase:firebase-ml-vision:20.0.0'
-implementation 'com.github.RahulRawat95:RScannerView:1.2.0-beta'
+implementation 'com.github.RahulRawat95:RScannerView:1.1.0-beta'
 ```
 
 Simple Usage
