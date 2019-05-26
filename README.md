@@ -18,11 +18,16 @@ repositories {
 }
 ```
 
-And Add the following dependency to your build.gradle file.
+Add the following dependency to your build.gradle file.
 
 ```
 implementation 'com.google.firebase:firebase-ml-vision:20.0.0'
 implementation 'com.github.RahulRawat95:RScannerView:1.2.0-beta'
+```
+And add the following permission to your manifest file
+
+```
+<uses-permission android:name="android.permission.CAMERA"/>
 ```
 
 Simple Usage
